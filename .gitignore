@@ -1,0 +1,6 @@
+*.mp3
+*.pyc
+*.swp
+*.rdb
+/.vagrant
+.DS_Store
