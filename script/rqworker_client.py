@@ -1,9 +1,9 @@
 from urllib import urlencode
 # from progress import Progress
 import os
-import optparse
 
-from speechDownloader import SpeechDownloader
+from helpers.parseArgs import parse_args
+from helpers.speechDownloader import SpeechDownloader
 
 from redis import Redis
 from rq import Queue
@@ -24,33 +24,6 @@ def _pickle_method(m):
         return getattr, (m.im_self, m.im_func.func_name)
 
 copy_reg.pickle(types.MethodType, _pickle_method)
-
-
-def parse_args():
-    usage = """
-        usage: %prog [options]
-    """
-    parser = optparse.OptionParser(usage)
-
-    help = 'The language of speech to get from text'
-    parser.add_option('--lang', type='str', default='es', help=help)
-
-    help = 'The task destination folder'
-    parser.add_option('--dir', type='str', help=help)
-
-    options, args = parser.parse_args()
-
-    if len(args):
-        parser.error('Bad Arguments')
-
-    if options.dir[-1] != '/':
-        options.dir += '/'
-
-    download_path = os.path.join(CWD, options.dir)
-    if not os.path.exists(download_path):
-        os.mkdir(download_path)
-
-    return options
 
 
 class SpeechDownloadService(object):
@@ -118,7 +91,7 @@ class SpeechDownloadService(object):
 
 
 def main():
-    options = parse_args()
+    options = parse_args(CWD)
     service = SpeechDownloadService(options.lang, options.dir)
     service.start()
 
